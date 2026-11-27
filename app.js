@@ -1,6 +1,3 @@
-
-const SALVAR_NO_NAVEGADOR = true;
-
 // LISTA DE PRODUTOS
 const produtos = [
     {
@@ -327,34 +324,24 @@ document.getElementById("btn-finalizar").addEventListener("click", () => {
 });
 
 // SALVAR CARRINHO NO NAVEGADOR
-function salvarCarrinho() {
-    if (SALVAR_NO_NAVEGADOR) {
-        localStorage.setItem("carrinho", JSON.stringify(carrinho));
-    }
+async function salvarCarrinho() {
+    await fetch("/api/carrinho", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(carrinho)
+    })
 }
 
 // CARREGAR CARRINHO SALVO
-function carregarCarrinho() {
-    if (SALVAR_NO_NAVEGADOR) {
-        try {
-            const dados = localStorage.getItem("carrinho");
-
-            if (dados) {
-                carrinho = JSON.parse(dados);
-            }
-
-        } catch (erro) {
-            console.error("Erro ao carregar o carrinho:", erro);
-            carrinho = [];
-        }
-
-        avisoStorage.textContent = "Salvando no navegador";
-
-    } else {
-        avisoStorage.textContent = "Sem salvar: o carrinho some ao recarregar";
+async function carregarCarrinho() {
+    try {
+        const respota = await fetch("/api/carrinho")
+        carrinho = await respota.json()
+        avisoStorage.textContent = "Salvando no SQLite (cafe.db)"
+    } catch (erro) {
+        console.error("Erro ao carregar o carrinho", erro)
     }
 }
 
-carregarCarrinho();
+carregarCarrinho().then(renderizarCarrinho)
 renderizarProdutos();
-renderizarCarrinho();
